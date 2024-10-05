@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  mysql-database:
+    image: mysql:latest
+    container_name: mysql-database
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: countries
+      MYSQL_USER: user
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - countries-network
+
+  app:
+    build:
+      context: /
+      dockerfile: Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-database:3306/countries
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: root
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql-database
+    networks:
+      - countries-network
+
+
+
+networks:
+  countries-network:
+    driver: bridge
+volumes:
+  mysql_data:
